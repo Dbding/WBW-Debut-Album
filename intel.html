@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王不亡 - 音樂作品</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- 引入 Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 自訂樣式 */
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+        .spotify-embed {
+            border-radius: 12px;
+            height: 80px;
+        }
+        #visualizer-container {
+            width: 100%;
+            height: 400px;
+            background: #000;
+            cursor: grab;
+        }
+        .track-item {
+            transition: background-color 0.3s ease;
+        }
+        .track-item:hover {
+            background-color: #282828;
+        }
+
+        /* SVG 動態封面樣式 */
+        .svg-cover {
+            width: 100%;
+            height: 100%;
+        }
+        .svg-cover .glow {
+            animation: pulse 4s ease-in-out infinite;
+        }
+        .svg-cover .rotate {
+            animation: spin 20s linear infinite;
+            transform-origin: center;
+        }
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 2px #fefae0); opacity: 0.7; }
+            50% { filter: drop-shadow(0 0 10px #fefae0); opacity: 1; }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header 區塊 -->
+    <header class="text-center py-12 px-4 bg-black">
+        <!-- 3D 視覺化工具容器 -->
+        <div id="visualizer-container" class="mx-auto mb-8 rounded-lg shadow-lg"></div>
+        <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+            <!-- SVG 動態封面 -->
+            <div class="w-48 h-48 md:w-64 md:h-64 flex-shrink-0 bg-black rounded-lg shadow-2xl p-4">
+                <svg class="svg-cover" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#e9d5a1; stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#bc6c25; stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- 旋轉背景線條 -->
+                    <g class="rotate" opacity="0.3">
+                        <path d="M 100,20 L 180,100 L 100,180 L 20,100 Z" fill="none" stroke="#6c757d" stroke-width="1"/>
+                        <circle cx="100" cy="100" r="60" fill="none" stroke="#6c757d" stroke-width="1"/>
+                    </g>
+
+                    <!-- 發光皇冠 -->
+                    <g class="glow" stroke="url(#goldGradient)" stroke-width="4" fill="none" stroke-linecap="round">
+                        <path d="M 60 70 L 100 40 L 140 70" />
+                        <path d="M 70 100 L 100 75 L 130 100" />
+                        <path d="M 80 130 L 100 110 L 120 130" />
+                    </g>
+                    
+                    <!-- 文字 -->
+                    <text x="100" y="170" font-family="Noto Sans TC, sans-serif" font-size="24" fill="#fefae0" text-anchor="middle" font-weight="bold">王不亡</text>
+                </svg>
+            </div>
+            <div class="text-left">
+                <h1 class="text-4xl md:text-6xl font-bold tracking-tight">王不亡</h1>
+                <p class="text-xl md:text-2xl text-gray-300 mt-2">Wang Bu-Wang</p>
+                <p class="text-gray-400 mt-4 max-w-prose">
+                    一張探索存在、記憶與虛無的音樂專輯。透過聲音的紋理，我們試圖在縫隙中尋找家園，在廢鐵中看見夢想。
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主內容區塊 -->
+    <main class="max-w-4xl mx-auto p-4 md:p-8">
+        <h2 class="text-3xl font-bold mb-6 border-b-2 border-gray-700 pb-2">曲目列表</h2>
+        
+        <!-- 歌曲列表 -->
+        <div id="track-list" class="space-y-4">
+            <!-- JavaScript 會在這裡動態插入歌曲 -->
+        </div>
+    </main>
+
+    <!-- Footer 區塊 -->
+    <footer class="text-center py-8 mt-12 border-t border-gray-800">
+        <p class="text-gray-500">&copy; 2024 Wang Bu-Wang. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 歌曲資料
+            const tracks = [
+                { title: "王不亡，亡的是你們", url: "https://open.spotify.com/embed/track/6QqvzkZSwqUW23akhozgg6" },
+                { title: "地板知道", url: "https://open.spotify.com/embed/track/7dVAbcs7Ny68KIClokYorj" },
+                { title: "縫隙家園", url: "https://open.spotify.com/embed/track/2Q3U5eEMSHH9REaxG601dk" },
+                { title: "廢鐵猿之夢", url: "https://open.spotify.com/embed/track/76enWYcfd8knUKkDFi42ze" },
+                { title: "雪偏舟", url: "https://open.spotify.com/embed/track/10hfnAE4WpkXfpIX4GVy2B" },
+                { title: "蝦花曾開過", url: "https://open.spotify.com/embed/track/1gzwif6jTetRcm5CuxxIPY" },
+                { title: "我像嗎", url: "https://open.spotify.com/embed/track/2g5Y3yIRRiSootIf9c9rKA" },
+                { title: "Let Light In", url: "https://open.spotify.com/embed/track/4Ci4VGTxwRkHDnnPiyOShz" },
+                { title: "照完還是空", url: "https://open.spotify.com/embed/track/5EsBs0AdGIhWFQTCswJ1pJ" },
+                { title: "王令開始", url: "https://open.spotify.com/embed/track/4mRstoVpZnLJkweHPJRkbx" }
+            ];
+
+            const trackListContainer = document.getElementById('track-list');
+
+            // 動態生成歌曲列表
+            tracks.forEach((track, index) => {
+                const trackElement = document.createElement('div');
+                trackElement.className = 'track-item bg-gray-900 p-4 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4';
+                trackElement.innerHTML = `
+                    <div class="flex items-center w-full sm:w-auto">
+                        <span class="text-gray-400 text-lg w-8">${index + 1}.</span>
+                        <p class="text-lg font-medium">${track.title}</p>
+                    </div>
+                    <div class="w-full sm:w-auto sm:max-w-xs md:max-w-sm flex-shrink-0">
+                         <iframe style="border-radius:12px" 
+                            src="${track.url}?utm_source=generator&theme=0" 
+                            width="100%" 
+                            height="80" 
+                            frameBorder="0" 
+                            allowfullscreen="" 
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                `;
+                trackListContainer.appendChild(trackElement);
+            });
+
+            // Three.js 視覺化工具
+            const container = document.getElementById('visualizer-container');
+            if (container) {
+                let scene, camera, renderer, particles, mouseX = 0, mouseY = 0;
+                let isMouseDown = false;
+                
+                // 新增：流星和閃光相關變數
+                let shootingStars, shootingStarVelocities;
+                let flash;
+
+                const windowHalfX = container.clientWidth / 2;
+                const windowHalfY = container.clientHeight / 2;
+
+                function init() {
+                    scene = new THREE.Scene();
+                    scene.fog = new THREE.FogExp2(0x000000, 0.001);
+                    camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 1, 4000);
+                    camera.position.z = 1000;
+                    renderer = new THREE.WebGLRenderer({ antialias: true });
+                    renderer.setPixelRatio(window.devicePixelRatio);
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                    container.appendChild(renderer.domElement);
+                    
+                    // 星空粒子
+                    const geometry = new THREE.BufferGeometry();
+                    const vertices = [];
+                    const numParticles = 20000;
+                    for (let i = 0; i < numParticles; i++) {
+                        const x = Math.random() * 3000 - 1500;
+                        const y = Math.random() * 3000 - 1500;
+                        const z = Math.random() * 3000 - 1500;
+                        vertices.push(x, y, z);
+                    }
+                    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                    const material = new THREE.PointsMaterial({ color: 0x888888, size: 2, transparent: true, opacity: 0.8 });
+                    particles = new THREE.Points(geometry, material);
+                    scene.add(particles);
+
+                    // 新增：初始化流星
+                    const shootingStarGeometry = new THREE.BufferGeometry();
+                    const shootingStarVertices = [];
+                    const numShootingStars = 20;
+                    shootingStarVelocities = [];
+                    for (let i = 0; i < numShootingStars; i++) {
+                        shootingStarVertices.push(
+                            Math.random() * 2000 - 1000,
+                            Math.random() * 2000 - 1000,
+                            Math.random() * 3000 - 1500
+                        );
+                        shootingStarVelocities.push({
+                            x: (Math.random() - 0.5) * 20 + 10, // 確保有較高速度
+                            y: (Math.random() - 0.5) * 20 - 10,
+                            z: 0
+                        });
+                    }
+                    shootingStarGeometry.setAttribute('position', new THREE.Float32BufferAttribute(shootingStarVertices, 3));
+                    const shootingStarMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 4, transparent: true, opacity: 1 });
+                    shootingStars = new THREE.Points(shootingStarGeometry, shootingStarMaterial);
+                    scene.add(shootingStars);
+
+                    // 新增：初始化閃光
+                    flash = new THREE.PointLight(0xffffff, 0, 0, 2);
+                    flash.position.set(0, 0, 500);
+                    scene.add(flash);
+
+                    container.addEventListener('pointerdown', onPointerDown);
+                    container.addEventListener('pointerup', onPointerUp);
+                    container.addEventListener('pointermove', onPointerMove);
+                    window.addEventListener('resize', onWindowResize);
+                }
+
+                function onWindowResize() {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+
+                function onPointerDown(event) {
+                    isMouseDown = true;
+                    container.style.cursor = 'grabbing';
+                }
+
+                function onPointerUp() {
+                    isMouseDown = false;
+                    container.style.cursor = 'grab';
+                }
+
+                function onPointerMove(event) {
+                    if (isMouseDown) {
+                        mouseX = (event.clientX - container.getBoundingClientRect().left) - windowHalfX;
+                        mouseY = (event.clientY - container.getBoundingClientRect().top) - windowHalfY;
+                    }
+                }
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    render();
+                }
+
+                function render() {
+                    camera.position.x += (mouseX - camera.position.x) * 0.05;
+                    camera.position.y += (-mouseY - camera.position.y) * 0.05;
+                    camera.lookAt(scene.position);
+                    particles.rotation.y += 0.0002;
+
+                    // 新增：更新流星位置
+                    const positions = shootingStars.geometry.attributes.position.array;
+                    for (let i = 0; i < positions.length; i += 3) {
+                        const vIndex = i / 3;
+                        positions[i] -= shootingStarVelocities[vIndex].x;
+                        positions[i+1] -= shootingStarVelocities[vIndex].y;
+                        
+                        // 如果流星超出範圍，則重置位置
+                        if (positions[i] < -1500 || positions[i+1] < -1500) {
+                            positions[i] = Math.random() * 2000 - 1000;
+                            positions[i+1] = Math.random() * 1000 + 1000; // 從上方開始
+                        }
+                    }
+                    shootingStars.geometry.attributes.position.needsUpdate = true;
+                    
+                    // 新增：觸發閃光
+                    if (Math.random() > 0.995 && flash.intensity === 0) {
+                        flash.intensity = 2;
+                        flash.position.set(
+                            Math.random() * 1000 - 500,
+                            Math.random() * 1000 - 500,
+                            camera.position.z - (Math.random() * 500 + 200)
+                        );
+                    }
+                    // 衰減閃光
+                    if (flash.intensity > 0) {
+                        flash.intensity -= 0.05;
+                    } else {
+                        flash.intensity = 0;
+                    }
+
+                    renderer.render(scene, camera);
+                }
+
+                init();
+                animate();
+            }
+        });
+    </script>
+</body>
+</html>
