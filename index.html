@@ -158,13 +158,10 @@
                 let scene, camera, renderer, particles, mouseX = 0, mouseY = 0;
                 let isMouseDown = false;
                 let shootingStars, shootingStarVelocities;
-                let flash;
-
+                
                 function init() {
                     const containerRect = container.getBoundingClientRect();
-                    const windowHalfX = containerRect.width / 2;
-                    const windowHalfY = containerRect.height / 2;
-
+                    
                     scene = new THREE.Scene();
                     scene.fog = new THREE.FogExp2(0x000000, 0.001);
                     camera = new THREE.PerspectiveCamera(75, containerRect.width / containerRect.height, 1, 4000);
@@ -174,45 +171,58 @@
                     renderer.setSize(containerRect.width, containerRect.height);
                     container.appendChild(renderer.domElement);
                     
+                    // 背景星空
                     const geometry = new THREE.BufferGeometry();
                     const vertices = [];
-                    const numParticles = 20000;
-                    for (let i = 0; i < numParticles; i++) {
+                    // 新增：為星點增加顏色
+                    const colors = [];
+                    const colorPalette = [
+                        new THREE.Color(0xdddddd), // 淺灰
+                        new THREE.Color(0xddeeff), // 淡藍
+                        new THREE.Color(0xffeedd)  // 淡黃
+                    ];
+                    for (let i = 0; i < 20000; i++) {
                         vertices.push(
                             Math.random() * 3000 - 1500,
                             Math.random() * 3000 - 1500,
                             Math.random() * 3000 - 1500
                         );
+                        // 隨機選擇一種顏色
+                        const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                        colors.push(color.r, color.g, color.b);
                     }
                     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-                    const material = new THREE.PointsMaterial({ color: 0x888888, size: 2, transparent: true, opacity: 0.8 });
+                    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); // 設置顏色屬性
+                    
+                    // 修改材質以使用頂點顏色
+                    const material = new THREE.PointsMaterial({ 
+                        size: 2, 
+                        transparent: true, 
+                        opacity: 0.8,
+                        vertexColors: true // 啟用頂點顏色
+                    });
                     particles = new THREE.Points(geometry, material);
                     scene.add(particles);
 
+                    // 流星
                     const shootingStarGeometry = new THREE.BufferGeometry();
                     const shootingStarVertices = [];
-                    const numShootingStars = 20;
                     shootingStarVelocities = [];
-                    for (let i = 0; i < numShootingStars; i++) {
+                    for (let i = 0; i < 30; i++) { // 增加流星數量
                         shootingStarVertices.push(
-                            Math.random() * 2000 - 1000,
-                            Math.random() * 2000 - 1000,
-                            Math.random() * 3000 - 1500
+                            Math.random() * 3000 - 1500,
+                            Math.random() * 3000 - 1500,
+                            Math.random() * 4000 - 2000
                         );
                         shootingStarVelocities.push({
-                            x: (Math.random() - 0.5) * 20 + 10,
-                            y: (Math.random() - 0.5) * 20 - 10,
-                            z: 0
+                            x: (Math.random() - 0.5) * 15 + 15, // 確保有足夠快的速度
+                            y: (Math.random() - 0.5) * 15 - 15,
                         });
                     }
                     shootingStarGeometry.setAttribute('position', new THREE.Float32BufferAttribute(shootingStarVertices, 3));
-                    const shootingStarMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 4, transparent: true, opacity: 1 });
+                    const shootingStarMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 5, transparent: true, opacity: 1 });
                     shootingStars = new THREE.Points(shootingStarGeometry, shootingStarMaterial);
                     scene.add(shootingStars);
-
-                    flash = new THREE.PointLight(0xffffff, 0, 0, 2);
-                    flash.position.set(0, 0, 500);
-                    scene.add(flash);
 
                     container.addEventListener('pointerdown', onPointerDown);
                     container.addEventListener('pointerup', onPointerUp);
@@ -246,6 +256,7 @@
                 }
 
                 function animate() {
+                    // 確保動畫循環持續
                     requestAnimationFrame(animate);
                     render();
                 }
@@ -256,33 +267,28 @@
                     camera.lookAt(scene.position);
                     particles.rotation.y += 0.0002;
 
-                    const positions = shootingStars.geometry.attributes.position.array;
-                    for (let i = 0; i < positions.length; i += 3) {
+                    // 持續更新流星位置
+                    const ssPositions = shootingStars.geometry.attributes.position.array;
+                    for (let i = 0; i < ssPositions.length; i += 3) {
                         const vIndex = i / 3;
-                        positions[i] -= shootingStarVelocities[vIndex].x;
-                        positions[i+1] -= shootingStarVelocities[vIndex].y;
-                        if (positions[i] < -1500 || positions[i+1] < -1500) {
-                            positions[i] = Math.random() * 2000 - 1000;
-                            positions[i+1] = Math.random() * 1000 + 1000;
+                        ssPositions[i] -= shootingStarVelocities[vIndex].x;
+                        ssPositions[i+1] -= shootingStarVelocities[vIndex].y;
+                        
+                        // 當流星超出畫面範圍時，重置其位置，確保效果持續不斷
+                        if (ssPositions[i] < -2000 || ssPositions[i+1] < -2000) {
+                            // 從畫面上方或右方重新生成
+                            if (Math.random() > 0.5) {
+                                ssPositions[i] = Math.random() * 1000 + 1000; // 從右側
+                                ssPositions[i+1] = Math.random() * 3000 - 1500;
+                            } else {
+                                ssPositions[i] = Math.random() * 3000 - 1500;
+                                ssPositions[i+1] = Math.random() * 1000 + 1000; // 從上方
+                            }
+                            ssPositions[i+2] = Math.random() * 4000 - 2000; // 重置深度
                         }
                     }
                     shootingStars.geometry.attributes.position.needsUpdate = true;
                     
-                    // 增加閃光頻率
-                    if (Math.random() > 0.98 && flash.intensity === 0) {
-                        flash.intensity = 2;
-                        flash.position.set(
-                            Math.random() * 1000 - 500,
-                            Math.random() * 1000 - 500,
-                            camera.position.z - (Math.random() * 500 + 200)
-                        );
-                    }
-                    if (flash.intensity > 0) {
-                        flash.intensity -= 0.05;
-                    } else {
-                        flash.intensity = 0;
-                    }
-
                     renderer.render(scene, camera);
                 }
 
