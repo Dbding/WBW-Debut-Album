@@ -25,8 +25,6 @@
         }
         #visualizer-container {
             width: 100%;
-            height: 400px;
-            background: #000;
             cursor: grab;
         }
         .track-item {
@@ -62,8 +60,8 @@
 
     <!-- Header 區塊 -->
     <header class="text-center py-12 px-4 bg-black">
-        <!-- 3D 視覺化工具容器 -->
-        <div id="visualizer-container" class="mx-auto mb-8 rounded-lg shadow-lg"></div>
+        <!-- 3D 視覺化工具容器 (響應式高度) -->
+        <div id="visualizer-container" class="mx-auto mb-8 rounded-lg shadow-lg h-80 md:h-[400px]"></div>
         <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
             <!-- SVG 動態封面 -->
             <div class="w-48 h-48 md:w-64 md:h-64 flex-shrink-0 bg-black rounded-lg shadow-2xl p-4">
@@ -74,28 +72,23 @@
                             <stop offset="100%" style="stop-color:#bc6c25; stop-opacity:1" />
                         </linearGradient>
                     </defs>
-                    
-                    <!-- 旋轉背景線條 -->
                     <g class="rotate" opacity="0.3">
                         <path d="M 100,20 L 180,100 L 100,180 L 20,100 Z" fill="none" stroke="#6c757d" stroke-width="1"/>
                         <circle cx="100" cy="100" r="60" fill="none" stroke="#6c757d" stroke-width="1"/>
                     </g>
-
-                    <!-- 發光皇冠 -->
                     <g class="glow" stroke="url(#goldGradient)" stroke-width="4" fill="none" stroke-linecap="round">
                         <path d="M 60 70 L 100 40 L 140 70" />
                         <path d="M 70 100 L 100 75 L 130 100" />
                         <path d="M 80 130 L 100 110 L 120 130" />
                     </g>
-                    
-                    <!-- 文字 -->
-                    <text x="100" y="170" font-family="Noto Sans TC, sans-serif" font-size="24" fill="#fefae0" text-anchor="middle" font-weight="bold">王不亡</text>
+                    <text x="100" y="170" font-family="Noto Sans TC, sans-serif" font-size="28" fill="#fefae0" text-anchor="middle" font-weight="bold">王不亡</text>
                 </svg>
             </div>
             <div class="text-left">
-                <h1 class="text-4xl md:text-6xl font-bold tracking-tight">王不亡</h1>
-                <p class="text-xl md:text-2xl text-gray-300 mt-2">Wang Bu-Wang</p>
-                <p class="text-gray-400 mt-4 max-w-prose">
+                <!-- 加大字體 -->
+                <h1 class="text-5xl md:text-7xl font-bold tracking-tight">王不亡</h1>
+                <p class="text-2xl md:text-3xl text-gray-300 mt-2">Wang Bu-Wang</p>
+                <p class="text-lg text-gray-400 mt-4 max-w-prose">
                     一張探索存在、記憶與虛無的音樂專輯。透過聲音的紋理，我們試圖在縫隙中尋找家園，在廢鐵中看見夢想。
                 </p>
             </div>
@@ -104,7 +97,7 @@
 
     <!-- 主內容區塊 -->
     <main class="max-w-4xl mx-auto p-4 md:p-8">
-        <h2 class="text-3xl font-bold mb-6 border-b-2 border-gray-700 pb-2">曲目列表</h2>
+        <h2 class="text-4xl font-bold mb-6 border-b-2 border-gray-700 pb-2">曲目列表</h2>
         
         <!-- 歌曲列表 -->
         <div id="track-list" class="space-y-4">
@@ -141,8 +134,8 @@
                 trackElement.className = 'track-item bg-gray-900 p-4 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4';
                 trackElement.innerHTML = `
                     <div class="flex items-center w-full sm:w-auto">
-                        <span class="text-gray-400 text-lg w-8">${index + 1}.</span>
-                        <p class="text-lg font-medium">${track.title}</p>
+                        <span class="text-gray-400 text-xl w-8">${index + 1}.</span>
+                        <p class="text-xl font-medium">${track.title}</p>
                     </div>
                     <div class="w-full sm:w-auto sm:max-w-xs md:max-w-sm flex-shrink-0">
                          <iframe style="border-radius:12px" 
@@ -164,40 +157,38 @@
             if (container) {
                 let scene, camera, renderer, particles, mouseX = 0, mouseY = 0;
                 let isMouseDown = false;
-                
-                // 新增：流星和閃光相關變數
                 let shootingStars, shootingStarVelocities;
                 let flash;
 
-                const windowHalfX = container.clientWidth / 2;
-                const windowHalfY = container.clientHeight / 2;
-
                 function init() {
+                    const containerRect = container.getBoundingClientRect();
+                    const windowHalfX = containerRect.width / 2;
+                    const windowHalfY = containerRect.height / 2;
+
                     scene = new THREE.Scene();
                     scene.fog = new THREE.FogExp2(0x000000, 0.001);
-                    camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 1, 4000);
+                    camera = new THREE.PerspectiveCamera(75, containerRect.width / containerRect.height, 1, 4000);
                     camera.position.z = 1000;
                     renderer = new THREE.WebGLRenderer({ antialias: true });
                     renderer.setPixelRatio(window.devicePixelRatio);
-                    renderer.setSize(container.clientWidth, container.clientHeight);
+                    renderer.setSize(containerRect.width, containerRect.height);
                     container.appendChild(renderer.domElement);
                     
-                    // 星空粒子
                     const geometry = new THREE.BufferGeometry();
                     const vertices = [];
                     const numParticles = 20000;
                     for (let i = 0; i < numParticles; i++) {
-                        const x = Math.random() * 3000 - 1500;
-                        const y = Math.random() * 3000 - 1500;
-                        const z = Math.random() * 3000 - 1500;
-                        vertices.push(x, y, z);
+                        vertices.push(
+                            Math.random() * 3000 - 1500,
+                            Math.random() * 3000 - 1500,
+                            Math.random() * 3000 - 1500
+                        );
                     }
                     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
                     const material = new THREE.PointsMaterial({ color: 0x888888, size: 2, transparent: true, opacity: 0.8 });
                     particles = new THREE.Points(geometry, material);
                     scene.add(particles);
 
-                    // 新增：初始化流星
                     const shootingStarGeometry = new THREE.BufferGeometry();
                     const shootingStarVertices = [];
                     const numShootingStars = 20;
@@ -209,7 +200,7 @@
                             Math.random() * 3000 - 1500
                         );
                         shootingStarVelocities.push({
-                            x: (Math.random() - 0.5) * 20 + 10, // 確保有較高速度
+                            x: (Math.random() - 0.5) * 20 + 10,
                             y: (Math.random() - 0.5) * 20 - 10,
                             z: 0
                         });
@@ -219,7 +210,6 @@
                     shootingStars = new THREE.Points(shootingStarGeometry, shootingStarMaterial);
                     scene.add(shootingStars);
 
-                    // 新增：初始化閃光
                     flash = new THREE.PointLight(0xffffff, 0, 0, 2);
                     flash.position.set(0, 0, 500);
                     scene.add(flash);
@@ -231,9 +221,10 @@
                 }
 
                 function onWindowResize() {
-                    camera.aspect = container.clientWidth / container.clientHeight;
+                    const containerRect = container.getBoundingClientRect();
+                    camera.aspect = containerRect.width / containerRect.height;
                     camera.updateProjectionMatrix();
-                    renderer.setSize(container.clientWidth, container.clientHeight);
+                    renderer.setSize(containerRect.width, containerRect.height);
                 }
 
                 function onPointerDown(event) {
@@ -248,8 +239,9 @@
 
                 function onPointerMove(event) {
                     if (isMouseDown) {
-                        mouseX = (event.clientX - container.getBoundingClientRect().left) - windowHalfX;
-                        mouseY = (event.clientY - container.getBoundingClientRect().top) - windowHalfY;
+                        const containerRect = container.getBoundingClientRect();
+                        mouseX = (event.clientX - containerRect.left) - (containerRect.width / 2);
+                        mouseY = (event.clientY - containerRect.top) - (containerRect.height / 2);
                     }
                 }
 
@@ -264,23 +256,20 @@
                     camera.lookAt(scene.position);
                     particles.rotation.y += 0.0002;
 
-                    // 新增：更新流星位置
                     const positions = shootingStars.geometry.attributes.position.array;
                     for (let i = 0; i < positions.length; i += 3) {
                         const vIndex = i / 3;
                         positions[i] -= shootingStarVelocities[vIndex].x;
                         positions[i+1] -= shootingStarVelocities[vIndex].y;
-                        
-                        // 如果流星超出範圍，則重置位置
                         if (positions[i] < -1500 || positions[i+1] < -1500) {
                             positions[i] = Math.random() * 2000 - 1000;
-                            positions[i+1] = Math.random() * 1000 + 1000; // 從上方開始
+                            positions[i+1] = Math.random() * 1000 + 1000;
                         }
                     }
                     shootingStars.geometry.attributes.position.needsUpdate = true;
                     
-                    // 新增：觸發閃光
-                    if (Math.random() > 0.995 && flash.intensity === 0) {
+                    // 增加閃光頻率
+                    if (Math.random() > 0.98 && flash.intensity === 0) {
                         flash.intensity = 2;
                         flash.position.set(
                             Math.random() * 1000 - 500,
@@ -288,7 +277,6 @@
                             camera.position.z - (Math.random() * 500 + 200)
                         );
                     }
-                    // 衰減閃光
                     if (flash.intensity > 0) {
                         flash.intensity -= 0.05;
                     } else {
