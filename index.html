@@ -66,21 +66,21 @@
 </head>
 <body class="antialiased">
 
-    <!-- 回到官網按鈕 (改為 button 並加上 id) -->
-    <button id="back-to-home-button"
-       class="fixed top-4 right-4 z-50 bg-black/50 backdrop-blur-sm border border-gray-600 text-gray-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-700/70 hover:text-white transition-colors shadow-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-        </svg>
-        <span class="hidden sm:inline">返回主頁</span>
-    </button>
-
     <!-- 3D 動畫背景 -->
     <div id="starlight-canvas"></div>
 
     <!-- 主要內容 (加上 pointer-events-none 讓事件穿透) -->
-    <main class="h-screen w-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 pointer-events-none">
+    <main class="h-screen w-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 pointer-events-none relative">
         
+        <!-- 按鈕移入 main 內部，並加上 pointer-events-auto -->
+        <button id="back-to-home-button"
+           class="fixed top-4 right-4 z-50 bg-black/50 backdrop-blur-sm border border-gray-600 text-gray-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-700/70 hover:text-white transition-colors shadow-lg pointer-events-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+            </svg>
+            <span class="hidden sm:inline">返回主頁</span>
+        </button>
+
         <!-- 卡片本身恢復 pointer-events-auto 讓其可以被互動 -->
         <div class="content-card rounded-xl shadow-2xl w-full max-w-3xl h-auto max-h-[85vh] flex flex-col pointer-events-auto">
             
