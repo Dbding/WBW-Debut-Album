@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>王不亡 - 個人音樂網頁 (動態封面版)</title>
+    <title>王不亡 - 首張專輯</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Three.js -->
@@ -17,7 +17,6 @@
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #000;
             color: #fff;
-            /* 移除 overflow: hidden; 以修復手機滾動問題 */
         }
         #starlight-canvas {
             position: fixed;
@@ -47,21 +46,6 @@
             0%, 100% { opacity: 0.5; transform: scale(0.95); }
             50% { opacity: 1; transform: scale(1.05); }
         }
-        /* 自訂滾動條樣式 */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
     </style>
 </head>
 <body class="antialiased">
@@ -69,23 +53,23 @@
     <!-- 3D 動畫背景 -->
     <div id="starlight-canvas"></div>
 
-    <!-- 主要內容 (加上 pointer-events-none 讓事件穿透) -->
-    <main class="h-screen w-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 pointer-events-none relative">
-        
-        <!-- 按鈕移入 main 內部，並加上 pointer-events-auto -->
-        <button id="back-to-home-button"
-           class="fixed top-4 right-4 z-50 bg-black/50 backdrop-blur-sm border border-gray-600 text-gray-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-700/70 hover:text-white transition-colors shadow-lg pointer-events-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-            </svg>
-            <span class="hidden sm:inline">返回主頁</span>
-        </button>
+    <!-- 返回主頁按鈕 -->
+    <button id="back-to-home-button"
+       class="fixed top-4 right-4 z-50 bg-black/50 backdrop-blur-sm border border-gray-600 text-gray-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-700/70 hover:text-white transition-colors shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+        </svg>
+        <span class="hidden sm:inline">返回主頁</span>
+    </button>
+    
+    <!-- 佔位區，讓初始畫面為全螢幕背景 -->
+    <header class="h-screen"></header>
 
-        <!-- 卡片本身恢復 pointer-events-auto 讓其可以被互動 -->
-        <div class="content-card rounded-xl shadow-2xl w-full max-w-3xl h-auto max-h-[85vh] flex flex-col pointer-events-auto">
-            
+    <!-- 主要內容 -->
+    <main class="relative z-10 max-w-5xl mx-auto p-4 md:p-8 -mt-[90vh] md:-mt-[85vh]">
+        <div class="content-card rounded-xl shadow-2xl w-full p-6 sm:p-8">
             <!-- 頂部專輯資訊 -->
-            <div class="p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 border-b border-gray-700 flex-shrink-0">
+            <div class="flex flex-col md:flex-row items-center gap-6 md:gap-8">
                 <div class="w-40 h-40 md:w-48 md:h-48 flex-shrink-0">
                     <svg class="svg-cover-crown w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                         <defs>
@@ -114,20 +98,20 @@
                 </div>
             </div>
             
-            <!-- 曲目列表標題 (移出滾動區)-->
-            <h2 class="text-3xl font-bold text-white px-6 sm:px-8 pt-6 pb-2 flex-shrink-0">曲目列表</h2>
-
-            <!-- 可滾動的曲目列表 -->
-            <div class="px-6 sm:px-8 pb-6 overflow-y-auto custom-scrollbar flex-grow">
+             <!-- 曲目列表 -->
+            <div class="mt-10">
+                <h2 class="text-3xl font-bold text-white mb-6 border-b-2 border-gray-700 pb-3">曲目列表</h2>
                 <div id="track-list" class="space-y-4">
                     <!-- 曲目將由 JS 動態生成 -->
                 </div>
             </div>
         </div>
-
+        
+        <!-- 頁尾空白，讓內容可以滾動到最底 -->
+        <div class="h-24"></div>
     </main>
     
-    <footer class="fixed bottom-4 w-full text-center text-gray-600 text-xs">
+    <footer class="fixed bottom-4 w-full text-center text-gray-600 text-xs z-20">
         <p>© 2025 Wang Bu-Wang. All Rights Reserved.</p>
     </footer>
 
@@ -162,7 +146,7 @@
                 trackListContainer.appendChild(trackElement);
             });
 
-            // --- 恢復可拖動的 Three.js 星空動畫 ---
+            // --- 可拖動的 Three.js 星空動畫 ---
             const container = document.getElementById('starlight-canvas');
             if (container) {
                 let scene, camera, renderer, particles, mouseX = 0, mouseY = 0;
@@ -177,7 +161,7 @@
                     scene.fog = new THREE.FogExp2(0x000000, 0.001);
                     camera = new THREE.PerspectiveCamera(75, width / height, 1, 4000);
                     camera.position.z = 1000;
-                    renderer = new THREE.WebGLRenderer({ antialias: true });
+                    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
                     renderer.setPixelRatio(window.devicePixelRatio);
                     renderer.setSize(width, height);
                     container.appendChild(renderer.domElement);
@@ -248,7 +232,6 @@
                 }
 
                 function onPointerMove(event) {
-                    // We only want to update the mouse position when the mouse is down
                     if (isMouseDown) {
                          mouseX = event.clientX - (window.innerWidth / 2);
                          mouseY = event.clientY - (window.innerHeight / 2);
@@ -266,7 +249,6 @@
                     camera.lookAt(scene.position);
                     particles.rotation.y += 0.0002;
 
-                    // 持續更新流星位置
                     const ssPositions = shootingStars.geometry.attributes.position.array;
                     for (let i = 0; i < ssPositions.length; i += 3) {
                         const vIndex = i / 3;
